@@ -1,0 +1,55 @@
+{
+  "summary": "Implement a public documentation page and verify its accessible navigation.",
+  "sanitized": true,
+  "privacy": "public",
+  "size": "bounded",
+  "complexity": "standard",
+  "reasoningDemand": "standard",
+  "risk": "low",
+  "uncertain": false,
+  "independentUnits": 1,
+  "allowDelegation": true,
+  "failedAttempts": 0,
+  "availableModels": [
+    {
+      "id": "gpt-6-luna",
+      "efforts": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ]
+    },
+    {
+      "id": "gpt-6-sol",
+      "efforts": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max",
+        "ultra"
+      ]
+    },
+    {
+      "id": "gpt-6-astra",
+      "efforts": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max",
+        "ultra"
+      ]
+    }
+  ],
+  "currentModel": "gpt-6-sol",
+  "skills": [
+    {
+      "id": "frontend-engineering",
+      "description": "Implement accessible frontend interfaces.",
+      "selected": true
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "name": "codex-task-router",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Plan Codex model, reasoning effort, skills, and bounded worker dispatch with optional TypeSafe Jev.",
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22"
+  },
+  "exports": {
+    ".": "./scripts/route.mjs"
+  },
+  "scripts": {
+    "test": "node --test scripts/route.test.mjs scripts/cli.test.mjs",
+    "check": "node --check scripts/route.mjs && node --check scripts/catalog.mjs"
+  },
+  "files": [
+    "SKILL.md",
+    "agents/",
+    "references/",
+    "scripts/route.mjs",
+    "scripts/catalog.mjs",
+    "examples/",
+    "README.md",
+    "LICENSE",
+    "SECURITY.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sir-ad/codex-task-router.git"
+  }
+}

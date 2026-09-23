@@ -1,0 +1,6 @@
+interface:
+  display_name: "Codex Task Router"
+  short_description: "Choose model, thinking effort, skills and bounded workers"
+  default_prompt: "Use $codex-task-router to choose available models, thinking effort and relevant skills, execute the work, and verify the result."
+policy:
+  allow_implicit_invocation: true

@@ -1,0 +1,8 @@
+.env
+.env.*
+node_modules/
+coverage/
+artifacts/
+*.log
+*.tgz
+.DS_Store
