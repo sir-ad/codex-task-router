@@ -1,7 +1,7 @@
 import {execFileSync} from 'node:child_process';
 import {pathToFileURL} from 'node:url';
 
-export const POLICY_VERSION = '2.1.0';
+export const POLICY_VERSION = '2.1.1';
 const ENDPOINT = 'https://api.typesafe.ai/v1/systemone';
 const TIERS = ['focused', 'standard', 'frontier'];
 const EFFORTS = ['none', 'minimal', 'low', 'medium', 'high', 'xhigh', 'max', 'ultra'];
@@ -308,14 +308,13 @@ export function compose(input, judge) {
   for (const [id,selected] of unitSelection) if (selected) includeDependencies(id);
   const workPlan = input.workUnits.map(u=>({id:u.id,selected:unitSelection.get(u.id),
     required:u.required,dependsOn:u.dependsOn})).filter(u=>u.selected);
-  const omittedRequiredDependency = false;
   const browserAnswer = answers?.browser;
   const browserConfident = decisiveChoice(browserAnswer);
   const browserRoute = input.browserNeeded && browserConfident ? browserAnswer.choice : null;
   const explicitModelBelowPolicy = Boolean(input.requestedModel && model && KNOWN[model.id] && TIERS.indexOf(KNOWN[model.id]) < TIERS.indexOf(tier));
   const skillDisagreement = Boolean(answers && input.skills.some((s,i) => s.selected && !s.required && answers[`skill_${i}`]?.noul < 0.8));
   const workDisagreement = Boolean(answers && input.workUnits.some((u,i)=>u.selected && !u.required && answers[`work_${i}`]?.noul < 0.8));
-  const workNeedsLocalCheck = omittedRequiredDependency || (input.workUnits.length > 0 && !answers);
+  const workNeedsLocalCheck = input.workUnits.length > 0 && !answers;
   const requiresReview = input.risk !== 'low' || input.failedAttempts > 0 || uncertain || explicitModelBelowPolicy || explicitEffortBelowPolicy || unverifiedModelCapability || reasoning.abstained || skillDisagreement || workDisagreement || workNeedsLocalCheck || (input.browserNeeded && !browserConfident);
   return {
     policyVersion: POLICY_VERSION, status: blocked ? 'blocked_explicit_choice' : model && effort ? 'planned' : 'continue_in_primary',

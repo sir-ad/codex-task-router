@@ -12,7 +12,7 @@ Requires Git and Node.js 22 or newer. A supported [Node.js LTS release](https://
 
 ```sh
 mkdir -p "${CODEX_HOME:-$HOME/.codex}/skills"
-git clone --branch v2.1.0 --depth 1 \
+git clone --branch v2.1.1 --depth 1 \
   https://github.com/sir-ad/codex-task-router.git \
   "${CODEX_HOME:-$HOME/.codex}/skills/codex-task-router"
 ```

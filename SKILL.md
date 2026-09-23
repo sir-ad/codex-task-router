@@ -1,6 +1,6 @@
 ---
 name: codex-task-router
-description: Route substantial Codex work to available GPT models and the smallest relevant skill set, using TypeSafe for ambiguous choices. Apply at the start of a new task or material scope change. Simple requests use a local fast path. Selects thinking effort independently, coordinates bounded subagents, and verifies their results.
+description: Route substantial Codex work to available GPT models, relevant skills, bounded work units, and browser paths, using TypeSafe for ambiguous choices. Apply at the start of a new task or material scope change. Simple requests use a local fast path. Selects thinking effort independently, coordinates bounded subagents, and verifies their results.
 ---
 
 # Codex task router

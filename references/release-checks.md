@@ -1,6 +1,6 @@
 # Router release checks
 
-Version 2.1.0, 2026-09-23.
+Version 2.1.1, 2026-09-23.
 
 ## Release gate
 
