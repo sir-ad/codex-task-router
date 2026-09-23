@@ -11,9 +11,12 @@ function response(body, tier='standard', overrides={}) {
   const answers = {tier:{type:'choice',choice:tier,confidence:0.98,
     probabilities:Object.fromEntries(['focused','standard','frontier','unknown'].map(x=>[x,x===tier?0.99:0.01/3]))}};
   for (const [id,q] of Object.entries(body.questions)) {
-    if(q.type==='noul') answers[id]={type:'noul',noul:id==='skill_0'?0.98:0.01};
-    else if(id !== 'tier') answers[id]={type:'choice',choice:'standard',confidence:0.98,
-      probabilities:Object.fromEntries(Object.keys(q.criteria).map(k=>[k,k==='standard'?1:0]))};
+    if(q.type==='noul') answers[id]={type:'noul',noul:id==='skill_0'||id.startsWith('work_')?0.98:0.01};
+    else if(id !== 'tier') {
+      const selected=Object.hasOwn(q.criteria,'standard')?'standard':Object.keys(q.criteria).find(k=>k!=='unknown');
+      answers[id]={type:'choice',choice:selected,confidence:0.98,
+        probabilities:Object.fromEntries(Object.keys(q.criteria).map(k=>[k,k===selected?1:0]))};
+    }
   }
   return {model:'jev-1.0.0', answers:{...answers,...overrides}, usage:{input_tokens:500,output_tokens:80}};
 }
@@ -243,4 +246,50 @@ test('array-valued provider choice is rejected rather than coerced to a tier',as
   assert.throws(()=>validateAnswers(provider,request));
   const r=await route(input(),deps('standard',{tier:provider.answers.tier}));
   assert.equal(r.typesafe.status,'unavailable');assert.equal(r.dispatch,null);
+});
+
+test('Jev selects coordinator-authored work units and required dependencies remain in the plan',async()=>{
+  const r=await route(input({workUnits:[
+    {id:'inspect',description:'Inspect public documentation.',required:true},
+    {id:'optional',description:'Compare a secondary public implementation.',dependsOn:['inspect']},
+    {id:'verify',description:'Run required acceptance checks.',required:true,dependsOn:['optional']},
+  ]}),deps());
+  assert.deepEqual(r.workPlan.map(x=>x.id),['inspect','optional','verify']);
+  assert.equal(r.workPlanRequiresReview,false);
+});
+test('work-unit dependency cycles and unknown edges are rejected',async()=>{
+  for(const workUnits of [
+    [{id:'a',description:'Step A.',dependsOn:['b']},{id:'b',description:'Step B.',dependsOn:['a']}],
+    [{id:'a',description:'Step A.',dependsOn:['missing']}],
+  ]) await assert.rejects(route(input({workUnits}),deps()));
+});
+test('private work plans bypass TypeSafe and preserve required units',async()=>{
+  let calls=0;
+  const r=await route(input({privacy:'private',summary:'',workUnits:[
+    {id:'inspect',description:'Inspect local source.',required:true},
+    {id:'test',description:'Run local tests.',required:true,dependsOn:['inspect']},
+  ]}),{getApiKey:()=> 'test-key',fetchImpl:()=>{calls++;throw Error('must not run')}});
+  assert.equal(calls,0);assert.equal(r.typesafe.reason,'private_or_unsanitized');
+  assert.deepEqual(r.workPlan.map(x=>x.id),['inspect','test']);
+});
+test('browser route selects only a listed workflow and reports an abstention for review',async()=>{
+  const make=browser=>({getApiKey:()=> 'test-key',fetchImpl:async(url,options)=>{
+    const req=JSON.parse(options.body), base=response(req);
+    base.answers.browser=browser;
+    return new Response(JSON.stringify(base));
+  }});
+  const browserCapabilities=[
+    {id:'jev_public_scroll',description:'Scan public pages in an isolated profile.'},
+    {id:'native_interactive',description:'Use available native interactive controls.'},
+  ];
+  const selected=await route(input({browserNeeded:true,browserCapabilities}),make({
+    type:'choice',choice:'jev_public_scroll',confidence:0.98,
+    probabilities:{jev_public_scroll:1,native_interactive:0,unknown:0},
+  }));
+  assert.equal(selected.browserRoute,'jev_public_scroll');
+  const abstained=await route(input({browserNeeded:true,browserCapabilities}),make({
+    type:'choice',choice:'unknown',confidence:0.99,
+    probabilities:{jev_public_scroll:0,native_interactive:0.1,unknown:0.9},
+  }));
+  assert.equal(abstained.browserRoute,null);assert.equal(abstained.primaryMustReview,true);
 });

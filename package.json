@@ -1,6 +1,6 @@
 {
   "name": "codex-task-router",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "private": true,
   "description": "Plan Codex model, reasoning effort, skills, and bounded worker dispatch with optional TypeSafe Jev.",
   "type": "module",

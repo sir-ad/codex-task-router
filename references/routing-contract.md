@@ -21,6 +21,16 @@ From the skill directory, run `node scripts/route.mjs` with a JSON object on std
     {"id":"gpt-6-astra","efforts":["low","medium","high","xhigh","max","ultra"]}
   ],
   "currentModel": "gpt-6-sol",
+  "workUnits": [
+    {"id":"inspect","description":"Inspect relevant public documentation.","required":true,"dependsOn":[]},
+    {"id":"implement","description":"Implement the agreed bounded change.","dependsOn":["inspect"]},
+    {"id":"verify","description":"Run acceptance checks and review the result.","required":true,"dependsOn":["implement"]}
+  ],
+  "browserNeeded": true,
+  "browserCapabilities": [
+    {"id":"jev_public_scroll","description":"Scan public pages in an isolated profile."},
+    {"id":"native_interactive","description":"Use available native browser controls for interactive pages."}
+  ],
   "skills": [
     {"id":"frontend-engineering","description":"Implement accessible React forms and frontend state.","selected":true},
     {"id":"spreadsheets","description":"Create and analyze spreadsheet workbooks."}
@@ -40,8 +50,10 @@ Fields:
 - The parallel Noul governs increasing concurrency from one worker to two. One worker requires a locally established independent unit and useful coordinator work. An uncertain model-tier decision always stays with the primary until locally resolved.
 - `requestedModel` / `requestedEffort`: copy explicit user choices exactly. Unsupported values block dispatch and produce a reason; do not silently substitute. A user's pinned lower model or effort is preserved with `explicitModelBelowPolicy` / `explicitEffortBelowPolicy` and suitable verification. Effort is null if the exact requested combination is unsupported; no substitute is dispatched.
 - `timeoutMs`: 100–8000, default 3500; one HTTP request, no retries or redirects. Keychain lookup has its own three-second timeout. No external call occurs for private or unsanitized input.
+- `workUnits`: zero through eight coordinator-authored candidates with stable IDs, short sanitized descriptions, optional `required`/`selected`, and known `dependsOn` IDs. Unknown edges, self-edges, cycles, and overlong descriptions are rejected. Jev judges optional units only; the coordinator retains required/selected units and closes over dependencies. Treat the result as a provisional checklist, then check full request and acceptance coverage. Never ask Jev to freely invent tasks or provide a private plan.
+- `browserNeeded` and `browserCapabilities`: use only when browser selection is genuinely ambiguous. IDs/descriptions represent workflows available to the caller. Jev may select one candidate or abstain; the coordinator verifies tool availability and privacy before use. Do not include URL, page content, profile identity, authentication state, or private facts. Decide private/interactive browser needs locally and keep page data out of TypeSafe.
 
-Output includes `recommendedModel`, `reasoningEffort`, `reasoningDecision` (demand, floor, source, uncertainty and override), `dispatch` (exact model, reasoning_effort and fork_turns, or null), skill IDs, ambiguous candidates to inspect locally, execution mode, concurrency, verification requirements, TypeSafe status/answers/model/latency/usage, and an empty execution receipt. There is no dispatch in this script. The coordinator executes a returned plan only after checking current task constraints and the available tool schema. A recommended model/effort may differ from the primary even when execution remains in the primary; report that accurately. `currentModelChanged` and `currentThinkingEffortChanged` are always false. Recheck dispatch arguments against the live tool catalog before use. Unknown models are not automatically assigned capability tiers; explicit exposed unknown models remain usable with a review flag.
+Output includes `recommendedModel`, `reasoningEffort`, `reasoningDecision` (demand, floor, source, uncertainty and override), `dispatch` (exact model, reasoning_effort and fork_turns, or null), skill IDs, selected `workPlan` entries with dependencies, optional `browserRoute`, ambiguous candidates to inspect locally, execution mode, concurrency, verification requirements, TypeSafe status/answers/model/latency/usage, and an empty execution receipt. There is no dispatch or browser action in this script. The route is not proof of complete task coverage: the coordinator must preserve the full request and add missing acceptance work locally. The coordinator checks current task constraints and available tool schema before acting. A recommended model/effort may differ from the primary even when execution remains in the primary; report that accurately. `currentModelChanged` and `currentThinkingEffortChanged` are always false. Recheck dispatch arguments against the live tool catalog before use. Unknown models are not automatically assigned capability tiers; explicit exposed unknown models remain usable with a review flag.
 
 Thresholds are conservative initial heuristics: Both tier and reasoning Choice confidence at least 0.65 and winning probability at least 0.75; optional skills at least 0.8; parallel usefulness at least 0.8. Noul has no separate confidence. Skills between 0.2 and 0.8 go to local review. These cutoffs need representative labeled tasks before being described as calibrated. All raw typed judgments are returned, so local policy can be inspected separately from model behavior.
 

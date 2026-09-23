@@ -12,7 +12,7 @@ Requires Git and Node.js 22 or newer. A supported [Node.js LTS release](https://
 
 ```sh
 mkdir -p "${CODEX_HOME:-$HOME/.codex}/skills"
-git clone --branch v2.0.0 --depth 1 \
+git clone --branch v2.1.0 --depth 1 \
   https://github.com/sir-ad/codex-task-router.git \
   "${CODEX_HOME:-$HOME/.codex}/skills/codex-task-router"
 ```
@@ -46,7 +46,7 @@ The input and output fields are documented in [the routing contract](references/
 
 These defaults follow current [OpenAI model guidance](https://learn.chatgpt.com/docs/models); actual availability depends on the account and tool. The router keeps model capability and reasoning demand separate. It preserves explicit user choices, blocks an unsupported exact model or effort, and makes review requirements visible when an explicit choice is below its policy floor. Max and Ultra require an explicit request.
 
-Jev receives one set of Choice and Noul questions to assess tier, reasoning demand, optional skill relevance, and useful parallelism. The caller supplies a shortlist; an omitted skill cannot be chosen. If Jev is unavailable or uncertain, policy falls back to local judgment. Numeric thresholds are provisional and need evaluation on representative tasks.
+Jev receives one set of Choice and Noul questions to assess tier, reasoning demand, optional skill relevance, coordinator-proposed work units, optional browser workflow, and useful parallelism. The coordinator supplies the work candidates and dependencies; required steps and their dependency closure remain. Jev cannot invent missing work, dispatch workers, operate a browser, or change the active model. If Jev is unavailable or uncertain, policy falls back to local judgment. Numeric thresholds are provisional and need evaluation on representative tasks.
 
 ## Data and execution boundaries
 

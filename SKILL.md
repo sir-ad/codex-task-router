@@ -66,7 +66,7 @@ with capability uncertainty recorded. Review official docs before adding a new
 model to automatic routing. `requestedEffort` uses API/tool values: Light is `low`
 and Extra High is `xhigh`.
 
-The helper reads `TYPESAFE_API_KEY` or the existing macOS Keychain item (account `typesafe-ai`, service `typesafe_api_key`) in memory. It sends independent Choices for capability tier and reasoning demand, a Noul for useful parallelism, and separate Noul questions for optional skills. It makes no browser actions or model dispatches. No credential belongs in files, stdout, prompts, arguments, or receipts.
+The helper reads `TYPESAFE_API_KEY` or the existing macOS Keychain item (account `typesafe-ai`, service `typesafe_api_key`) in memory. For uncertain public tasks it can send independent Choices for capability tier, reasoning demand, and an available browser workflow, plus Noul judgments for proposed work units, useful parallelism, and optional skills. Work-unit IDs and dependency edges are proposed by the coordinator; Jev may recommend inclusion but cannot invent missing tasks. Required units and their dependency closure always remain. No candidate means local routing. It makes no browser actions or model dispatches. No credential belongs in files, stdout, prompts, arguments, or receipts.
 
 Respect local policy floors and explicit choices. An uncertain, invalid, missing-key, or timed-out answer falls back to coordinator judgment; continue the task. The probability thresholds are provisional abstention rules, not calibrated success probabilities. Resolve `skillCandidatesForLocalReview` locally. No retry loop, and no external call merely to reconfirm a clear choice.
 
@@ -92,7 +92,16 @@ The helper's `executionReceipt` begins unexecuted. Fill it from observed tool re
 
 ## Maintain and verify
 
-Policy version 2.0.0 adds independent reasoning-demand selection and exact dispatch
+Policy version 2.1.0 adds bounded work-unit selection and optional selection among
+caller-listed browser capabilities. Jev cannot create a capability, use a browser,
+authorize an action, remove required work, or control the active parent model.
+Private, unsanitized, clear, and tiny tasks stay local. Browser candidate descriptions
+must be generic and must not expose page text, URL, profile, account state, or project
+details. A private browser task bypasses Jev; the coordinator uses available native
+tools based on local policy. A browser recommendation is provisional and checked
+against actual available tools before use.
+
+Policy version 2.0.0 added independent reasoning-demand selection and exact dispatch
 arguments. Clear/tiny/private tasks can route without service or credential access.
 Use the documented stdin schema; never pass a raw prompt or secret as an argument.
 Provider responses are streamed with a 64 KB cap, stdin with a 16 KB cap, and a
